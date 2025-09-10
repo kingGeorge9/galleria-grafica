@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Photo Gallery</title>
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 1em;
+            background: linear-gradient(to right, #fff, #e2e2e2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .filters {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 10px 20px;
+            border: 1px solid var(--glass-border);
+            background: var(--glass-bg);
+            color: white;
+            border-radius: 25px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            padding: 20px;
+        }
+
+        .photo-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .photo-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .photo-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .photo-info {
+            padding: 20px;
+            color: white;
+        }
+
+        .photo-info h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        /* Lightbox styles */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-img {
+            max-width: 90%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+
+        .lightbox-btn {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: none;
+            padding: 15px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .lightbox-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .close-btn {
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+        }
+
+        .prev-btn, .next-btn {
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 30px;
+        }
+
+        .prev-btn {
+            left: 20px;
+        }
+
+        .next-btn {
+            right: 20px;
+        }
+
+        /* Loading animation */
+        .lazy {
+            opacity: 0;
+            transition: opacity 0.3s ease-in;
+        }
+
+        .lazy.loaded {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>My Photo Gallery</h1>
+        
+
+
+        <div class="gallery">
+            <!-- Branding Section -->
+            <div class="photo-item" data-category="branding">
+                <img class="lazy" src="images/full/Branding_1.jpg" data-src="images/full/Branding_1.jpg" alt="Professional Branding">
+                <div class="photo-info">
+                    <h3>Professional Branding</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="branding">
+                <img class="lazy" src="images/full/Branding_2.jpg" data-src="images/full/Branding_2.jpg" alt="Corporate Identity">
+                <div class="photo-info">
+                    <h3>Corporate Identity</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="branding">
+                <img class="lazy" src="images/full/Branding_4.jpg" data-src="images/full/Branding_4.jpg" alt="Brand Strategy">
+                <div class="photo-info">
+                    <h3>Brand Strategy</h3>
+                </div>
+            </div>
+
+            <!-- Real Estate Section -->
+            <div class="photo-item" data-category="real-estate">
+                <img class="lazy" src="images/full/Estate_1.jpg" data-src="images/full/Estate_1.jpg" alt="Luxury Property">
+                <div class="photo-info">
+                    <h3>Luxury Property</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="real-estate">
+                <img class="lazy" src="images/full/Estate_2.jpg" data-src="images/full/Estate_2.jpg" alt="Modern Living">
+                <div class="photo-info">
+                    <h3>Modern Living</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="real-estate">
+                <img class="lazy" src="images/full/Estate_2B.jpg" data-src="images/full/Estate_2B.jpg" alt="Contemporary Design">
+                <div class="photo-info">
+                    <h3>Contemporary Design</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="real-estate">
+                <img class="lazy" src="images/full/Estate_3.jpg" data-src="images/full/Estate_3.jpg" alt="Urban Development">
+                <div class="photo-info">
+                    <h3>Urban Development</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="real-estate">
+                <img class="lazy" src="images/full/Estate_4.jpg" data-src="images/full/Estate_4.jpg" alt="Residential Properties">
+                <div class="photo-info">
+                    <h3>Residential Properties</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="real-estate">
+                <img class="lazy" src="images/full/Estate_5.jpg" data-src="images/full/Estate_5.jpg" alt="Premium Real Estate">
+                <div class="photo-info">
+                    <h3>Premium Real Estate</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="real-estate">
+                <img class="lazy" src="images/full/Estate_6.jpg" data-src="images/full/Estate_6.jpg" alt="Luxury Homes">
+                <div class="photo-info">
+                    <h3>Luxury Homes</h3>
+                </div>
+            </div>
+
+            <!-- Events Section -->
+            <div class="photo-item" data-category="events">
+                <img class="lazy" src="images/full/Event_1.jpg" data-src="images/full/Event_1.jpg" alt="Corporate Events">
+                <div class="photo-info">
+                    <h3>Corporate Events</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="events">
+                <img class="lazy" src="images/full/Event_2.jpg" data-src="images/full/Event_2.jpg" alt="Special Occasions">
+                <div class="photo-info">
+                    <h3>Special Occasions</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="events">
+                <img class="lazy" src="images/full/Event_3.jpg" data-src="images/full/Event_3.jpg" alt="Event Planning">
+                <div class="photo-info">
+                    <h3>Event Planning</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="events">
+                <img class="lazy" src="images/full/Event_4.jpg" data-src="images/full/Event_4.jpg" alt="Celebrations">
+                <div class="photo-info">
+                    <h3>Celebrations</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="events">
+                <img class="lazy" src="images/full/Event_5.jpg" data-src="images/full/Event_5.jpg" alt="Social Gatherings">
+                <div class="photo-info">
+                    <h3>Social Gatherings</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="events">
+                <img class="lazy" src="images/full/Event_6.jpg" data-src="images/full/Event_6.jpg" alt="Corporate Functions">
+                <div class="photo-info">
+                    <h3>Corporate Functions</h3>
+                </div>
+            </div>
+
+            <!-- Logistics Section -->
+            <div class="photo-item" data-category="logistics">
+                <img class="lazy" src="images/full/Logistics_1.jpg" data-src="images/full/Logistics_1.jpg" alt="Supply Chain">
+                <div class="photo-info">
+                    <h3>Supply Chain</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="logistics">
+                <img class="lazy" src="images/full/Logistics_2.jpg" data-src="images/full/Logistics_2.jpg" alt="Distribution">
+                <div class="photo-info">
+                    <h3>Distribution</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="logistics">
+                <img class="lazy" src="images/full/Logistics_3.jpg" data-src="images/full/Logistics_3.jpg" alt="Warehouse Operations">
+                <div class="photo-info">
+                    <h3>Warehouse Operations</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="logistics">
+                <img class="lazy" src="images/full/Logistics_4.jpg" data-src="images/full/Logistics_4.jpg" alt="Transportation">
+                <div class="photo-info">
+                    <h3>Transportation</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="logistics">
+                <img class="lazy" src="images/full/Logistics_5.jpg" data-src="images/full/Logistics_5.jpg" alt="Supply Management">
+                <div class="photo-info">
+                    <h3>Supply Management</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="logistics">
+                <img class="lazy" src="images/full/logistics-3-june3 (1).jpg" data-src="images/full/logistics-3-june3 (1).jpg" alt="Logistics Services">
+                <div class="photo-info">
+                    <h3>Logistics Services</h3>
+                </div>
+            </div>
+
+            <!-- Restaurants Section -->
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_1.jpg" data-src="images/full/Restaurant_1.jpg" alt="Fine Dining">
+                <div class="photo-info">
+                    <h3>Fine Dining</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_2.jpg" data-src="images/full/Restaurant_2.jpg" alt="Culinary Excellence">
+                <div class="photo-info">
+                    <h3>Culinary Excellence</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_3.jpg" data-src="images/full/Restaurant_3.jpg" alt="Restaurant Interior">
+                <div class="photo-info">
+                    <h3>Restaurant Interior</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_4.jpg" data-src="images/full/Restaurant_4.jpg" alt="Gourmet Cuisine">
+                <div class="photo-info">
+                    <h3>Gourmet Cuisine</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_5.jpg" data-src="images/full/Restaurant_5.jpg" alt="Dining Ambiance">
+                <div class="photo-info">
+                    <h3>Dining Ambiance</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_6.jpg" data-src="images/full/Restaurant_6.jpg" alt="Restaurant Service">
+                <div class="photo-info">
+                    <h3>Restaurant Service</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_8.jpg" data-src="images/full/Restaurant_8.jpg" alt="Restaurant Design">
+                <div class="photo-info">
+                    <h3>Restaurant Design</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_9.jpg" data-src="images/full/Restaurant_9.jpg" alt="Dining Experience">
+                <div class="photo-info">
+                    <h3>Dining Experience</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_10.jpg" data-src="images/full/Restaurant_10.jpg" alt="Restaurant Atmosphere">
+                <div class="photo-info">
+                    <h3>Restaurant Atmosphere</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_11.jpg" data-src="images/full/Restaurant_11.jpg" alt="Culinary Arts">
+                <div class="photo-info">
+                    <h3>Culinary Arts</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="restaurants">
+                <img class="lazy" src="images/full/Restaurant_12.jpg" data-src="images/full/Restaurant_12.jpg" alt="Restaurant Quality">
+                <div class="photo-info">
+                    <h3>Restaurant Quality</h3>
+                </div>
+            </div>
+
+            <!-- Travels Section -->
+            <div class="photo-item" data-category="travels">
+                <img class="lazy" src="images/full/Travels_1.jpg" data-src="images/full/Travels_1.jpg" alt="Travel Photography">
+                <div class="photo-info">
+                    <h3>Travel Photography</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="travels">
+                <img class="lazy" src="images/full/Travels_2.jpg" data-src="images/full/Travels_2.jpg" alt="Destination Coverage">
+                <div class="photo-info">
+                    <h3>Destination Coverage</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="travels">
+                <img class="lazy" src="images/full/Travels_3.jpg" data-src="images/full/Travels_3.jpg" alt="Adventure Photography">
+                <div class="photo-info">
+                    <h3>Adventure Photography</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="branding">
+                <img class="lazy" src="images/thumbs/Branding_2.thumbnail" data-src="images/full/Branding_2.jpg" alt="Corporate Identity">
+                <div class="photo-info">
+                    <h3>Corporate Identity</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="branding">
+                <img class="lazy" src="images/thumbs/Branding_4.thumbnail" data-src="images/full/Branding_4.jpg" alt="Brand Strategy">
+                <div class="photo-info">
+                    <h3>Brand Strategy</h3>
+                </div>
+            </div>
+
+            <!-- Real Estate Section -->
+            <div class="photo-item" data-category="real-estate">
+                <img class="lazy" src="images/thumbs/Estate_1.thumbnail" data-src="images/full/Estate_1.jpg" alt="Luxury Property">
+                <div class="photo-info">
+                    <h3>Luxury Property</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="real-estate">
+                <img class="lazy" src="images/thumbs/Estate_2.thumbnail" data-src="images/full/Estate_2.jpg" alt="Modern Living">
+                <div class="photo-info">
+                    <h3>Modern Living</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="real-estate">
+                <img class="lazy" src="images/thumbs/Estate_3.thumbnail" data-src="images/full/Estate_3.jpg" alt="Urban Development">
+                <div class="photo-info">
+                    <h3>Urban Development</h3>
+                </div>
+            </div>
+            
+            <!-- Events Section -->
+            <div class="photo-item" data-category="event">
+                <img class="lazy" src="images/thumbs/Event_1.thumbnail" data-src="images/full/Event_1.jpg" alt="Corporate Events">
+                <div class="photo-info">
+                    <h3>Corporate Events</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="event">
+                <img class="lazy" src="images/thumbs/Event_2.thumbnail" data-src="images/full/Event_2.jpg" alt="Special Occasions">
+                <div class="photo-info">
+                    <h3>Special Occasions</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="event">
+                <img class="lazy" src="images/thumbs/Event_3.thumbnail" data-src="images/full/Event_3.jpg" alt="Event Planning">
+                <div class="photo-info">
+                    <h3>Event Planning</h3>
+                </div>
+            </div>
+
+            <!-- Logistics Section -->
+            <div class="photo-item" data-category="logistics">
+                <img class="lazy" src="images/thumbs/Logistics_1.thumbnail" data-src="images/full/Logistics_1.jpg" alt="Supply Chain">
+                <div class="photo-info">
+                    <h3>Supply Chain</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="logistics">
+                <img class="lazy" src="images/thumbs/Logistics_2.thumbnail" data-src="images/full/Logistics_2.jpg" alt="Distribution">
+                <div class="photo-info">
+                    <h3>Distribution</h3>
+                </div>
+            </div>
+            <div class="photo-item" data-category="logistics">
+                <img class="lazy" src="images/thumbs/Logistics_3.thumbnail" data-src="images/full/Logistics_3.jpg" alt="Logistics Operations">
+                <div class="photo-info">
+                    <h3>Logistics Operations</h3>
+                </div>
+            </div>
+
+            <!-- Restaurant Section -->
+            <div class="photo-item" data-category="restaurant">
+                <img class="lazy" src="images/thumbs/Restaurant_1.thumbnail" data-src="images/full/Restaurant_1.jpg" alt="Fine Dining">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        <div class="photo-item">
+            <img src="images/full/Branding_1.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Branding</h3>
+            </div>
+        </div>
+        <!-- Repeat for each photo -->
+
+        <div class="photo-item">
+            <img src="images/full/Branding_2.jpg" alt="Photo 2">
+            <div class="photo-info">
+                <h3>Branding</h3>
+            </div>
+        </div>
+
+        <div class="photo-item">
+            <img src="images/full/Branding_4.jpg" alt="Photo 4">
+            <div class="photo-info">
+                <h3>Branding</h3>
+            </div>
+        </div>
+
+       <div class="photo-item">
+            <img src="images/full/Event_6.jpg" alt="Photo 4">
+            <div class="photo-info">
+                <h3>Events</h3>
+            </div>
+        </div>
+
+         <div class="photo-item">
+            <img src="images/full/Estate_1.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Real Estate</h3>
+            </div>
+        </div>
+
+         <div class="photo-item">
+            <img src="images/full/Estate_2.jpg" alt="Photo 2">
+            <div class="photo-info">
+                <h3>Real Estate</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Estate_3.jpg" alt="Photo 3">
+            <div class="photo-info">
+                <h3>Real Estate</h3>
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Estate_2B.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Real Estate</h3>
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Estate_4.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Real Estate</h3>
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Estate_5.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Real Estate</h3>
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Estate_6.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Real Estate</h3>
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Event_1.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Events</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Event_2.jpg" alt="Photo 2">
+            <div class="photo-info">
+                <h3>Events</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Event_3.jpg" alt="Photo 3">
+            <div class="photo-info">
+                <h3>Events</h3>
+     
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Event_4.jpg" alt="Photo 4">
+            <div class="photo-info">
+                <h3>Events</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Event_5.jpg" alt="Photo 5">
+            <div class="photo-info">
+                <h3>Events</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/logistics-3-june3 (1).jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Delivries</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Logistics_2.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Delivries</h3>
+
+                            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Logistics_3.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Delivries</h3>
+
+                            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Logistics_1.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Delivries</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Logistics_4.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Delivries</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Logistics_5.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Delivries</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_1.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_2.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_3.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_4.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_5.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_6.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_8.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_9.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_10.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_11.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Restaurant_12.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Food & Restaurant</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Travels_1.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Travels</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Travels_2.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Travels</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/Travels_3.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Travels</h3>
+
+            </div>
+        </div> <div class="photo-item">
+            <img src="images/full/yyttv.jpg" alt="Photo 1">
+            <div class="photo-info">
+                <h3>Branding</h3>
+            </div>
+        </div>
+              
+        </div>
+    </div>
+</body>
+</html>
